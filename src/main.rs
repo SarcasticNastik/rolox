@@ -1,48 +1,34 @@
-use structopt::StructOpt;
-use std::error::Error;
+mod lexer;
+mod util;
+
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
+use std::error::Error;
+use structopt::StructOpt;
+use util::check_pattern;
 
 // storing repl history
 const HISTORY_FILE_NAME: &'static str = "history.txt";
 const PATTERN: &'static str = "*.rl";
-
-macro_rules! debug {
-    ($msg:literal) => {
-        eprintln!("rolox: {:?}", $msg);
-    };
-    ($msg:literal,$val:expr) => {
-        eprintln!("rolox: {:?}", format!($msg, $val));
-    };
-    ($line:literal;$msg:literal) => {
-        eprintln!("[line:{:?} {:?}]"$line, $msg);
-        panic!("");
-    }
-}
+static mut has_error: bool = false;
 
 // Input structure for our CLI tool
 #[derive(Debug, StructOpt)]
 struct Cli {
-    #[structopt(parse(from_os_str), default_value="")]
+    #[structopt(parse(from_os_str), default_value = "")]
     path: std::path::PathBuf,
 }
 
-// checks for file extensions
-fn check_pattern(pat: &str, file: &std::io::Result<String>) -> bool
-{
-    debug!("file pattern check");
-    true
-}
-
 // `THE COMPILER`
-fn compile(lines: &String)
-{
+fn compile(lines: &String) {
     println!("{}", lines);
+    // Lexer
+    // Parser
+    // AST
 }
 
 // Read-Eval-Print-Loop
-fn repl()
-{
+fn repl() {
     debug!("Starting REPL for lox language");
     let mut rl = Editor::<()>::new();
     if rl.load_history(HISTORY_FILE_NAME).is_err() {
@@ -57,13 +43,11 @@ fn repl()
                 rl.add_history_entry(line);
                 // rEPl
                 compile(line);
-            },
+            }
             Err(ReadlineError::Interrupted) => {
                 debug!("Ctrl-C interrupt");
-                break;
             }
-            Err(ReadlineError::Eof) =>
-            {
+            Err(ReadlineError::Eof) => {
                 debug!("Ctrl-D interrupt");
                 break;
             }
@@ -77,14 +61,18 @@ fn repl()
 }
 
 // Compiler case for
-fn run(name: &str, content: &String)
-{
+fn run(name: &str, content: &String) {
     debug!("Compiling file {}", name);
     compile(content);
+    unsafe{
+        if has_error {
+            debug!("Error while parsing/ compiling file");
+            std::process::exit(65);
+        }
+    }
 }
 
 fn main() {
-    let has_error = false;
     let args = Cli::from_args();
     // Interpreter
     if args.path == std::path::PathBuf::from("") {
