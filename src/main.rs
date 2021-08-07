@@ -5,7 +5,19 @@ use rustyline::Editor;
 
 // storing repl history
 const HISTORY_FILE_NAME: &'static str = "history.txt";
-const pattern: &'static str = "*.rl";
+const PATTERN: &'static str = "*.rl";
+
+macro_rules! debug {
+    ($msg:literal) => {
+        eprintln!("rolox: {:?}", $msg);
+    };
+    ($msg:literal,$val:expr) => {
+        eprintln!("rolox: {:?}", format!($msg, $val));
+    };
+    ($line:literal;$msg:literal) => {
+        eprintln!("[line:{:?} {:?}]"$line, $msg);
+    }
+}
 
 // Input structure for our CLI tool
 #[derive(Debug, StructOpt)]
@@ -17,7 +29,7 @@ struct Cli {
 // checks for file extensions
 fn check_pattern(pat: &str, file: &std::io::Result<String>) -> bool
 {
-    eprintln!("rolox: file pattern check");
+    debug!("file pattern check");
     true
 }
 
@@ -30,7 +42,7 @@ fn compile(lines: &String)
 // Read-Eval-Print-Loop
 fn repl()
 {
-    eprintln!("rolox: Starting REPL for lox language");
+    debug!("Starting REPL for lox language");
     let mut rl = Editor::<()>::new();
     if rl.load_history(HISTORY_FILE_NAME).is_err() {
         println!("rolox: Failed to load history");
@@ -46,16 +58,16 @@ fn repl()
                 compile(line);
             },
             Err(ReadlineError::Interrupted) => {
-                eprintln!("Ctrl-C");
+                debug!("Ctrl-C interrupt");
                 break;
             }
             Err(ReadlineError::Eof) =>
             {
-                eprintln!("Ctrl-D");
+                debug!("Ctrl-D interrupt");
                 break;
             }
             Err(e) => {
-                eprintln!("Error occurred");
+                debug!("Error occurred");
                 break;
             }
         }
@@ -66,21 +78,18 @@ fn repl()
 // Compiler case for
 fn run(name: &str, content: &String)
 {
-    eprintln!("rolox: Compiling file `{}`", name);
+    debug!("Compiling file {}", name);
     compile(content);
 }
 
 fn main() {
-    if std::env::args().count() > 1 {
-        println!("usage: rolox [file_path]");
-        std::process::exit(1);
-    }
+    let has_error = false;
     let args = Cli::from_args();
     // Interpreter
     if args.path == std::path::PathBuf::from("") {
         // Start the interactive read-eval-print loop
         repl();
-        eprintln!("rolox: Ending the repl loop");
+        debug!("Ending the repl loop");
         std::process::exit(0);
     }
 
@@ -89,19 +98,19 @@ fn main() {
     let contents = match file {
         Ok(ref content) => content,
         Err(e) => {
-            eprintln!("rolox: Error occurred while reading file contents: {}", e);
+            debug!("Error occurred while reading file contents: {}", e);
             std::process::exit(1);
         }
     };
+
     // otherwise compile the given file
     let mat = check_pattern(&pattern, &file);
     if !mat {
-        eprintln!("rolox: Filetype mismatch");
+        debug!("Filetype mismatch");
         // find some idiomatic way of refactoring this
         std::process::exit(1);
     }
 
     let file_name = ""; // TODO: Add function for filename
-    // Compile the given program
-    run(file_name, &contents);
+    run(file_name, &contents); // Compile the given program
 }
