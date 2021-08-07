@@ -16,6 +16,7 @@ macro_rules! debug {
     };
     ($line:literal;$msg:literal) => {
         eprintln!("[line:{:?} {:?}]"$line, $msg);
+        panic!("");
     }
 }
 
@@ -104,7 +105,7 @@ fn main() {
     };
 
     // otherwise compile the given file
-    let mat = check_pattern(&pattern, &file);
+    let mat = check_pattern(&PATTERN, &file);
     if !mat {
         debug!("Filetype mismatch");
         // find some idiomatic way of refactoring this
