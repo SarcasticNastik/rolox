@@ -6,11 +6,15 @@ use rustyline::Editor;
 use std::error::Error;
 use structopt::StructOpt;
 use util::check_pattern;
+use crate::lexer::Lexer;
+
+// Returns tokens as the following type
+pub type Result<T> = std::result::Result<T, String>;
 
 // storing repl history
 const HISTORY_FILE_NAME: &'static str = "history.txt";
 const PATTERN: &'static str = "*.rl";
-static mut has_error: bool = false;
+static mut HAS_ERROR: bool = false;
 
 // Input structure for our CLI tool
 #[derive(Debug, StructOpt)]
@@ -23,6 +27,16 @@ struct Cli {
 fn compile(lines: &String) {
     println!("{}", lines);
     // Lexer
+    let lexer = Lexer::new(lines);
+    for token in lexer {
+        match token {
+            Ok(t) => println!("{:?}", t),
+            Err(e) => {
+                unsafe { HAS_ERROR = true; }
+                debug!("lexer: {}", e);
+            }
+        }
+    }
     // Parser
     // AST
 }
@@ -51,7 +65,7 @@ fn repl() {
                 debug!("Ctrl-D interrupt");
                 break;
             }
-            Err(e) => {
+            Err(_) => {
                 debug!("Error occurred");
                 break;
             }
@@ -65,7 +79,7 @@ fn run(name: &str, content: &String) {
     debug!("Compiling file {}", name);
     compile(content);
     unsafe{
-        if has_error {
+        if HAS_ERROR {
             debug!("Error while parsing/ compiling file");
             std::process::exit(65);
         }
