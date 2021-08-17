@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use ::phf::{Map, phf_map};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Token {
     // Single-character tokens.
     LPAREN,
@@ -25,6 +25,9 @@ pub enum Token {
     GREATER_EQUAL,
     LESS,
     LESS_EQUAL,
+
+    // NOOP
+    NOOP,
 
     IDENTIFIER(String),
     LITERAL(Literal),
@@ -52,7 +55,7 @@ pub enum Token {
 
 // pub const KEYWORD: &[&str] = &["and", "class", "else", "false", "true", "fun", "for", "if", "Nil", "or", "print", "return", "super", "this", "var", "while"];
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Literal {
     // Literals.
     STRING(String),
@@ -83,6 +86,7 @@ pub static VALID_SYMBOLS: Map<&str, Token> = phf_map! {
     "+" => Token::PLUS,
     ";" => Token::SEMICOLON,
     "/" => Token::SLASH,
+    "//" => Token::NOOP,
     "*" => Token::STAR,
     "!" => Token::BANG,
     "!=" => Token::BANG_EQUAL,

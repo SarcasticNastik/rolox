@@ -8,34 +8,45 @@
 // operator       → "==" | "!=" | "<" | "<=" | ">" | ">=" | "+"  | "-"  | "*" | "/" ;
 
 use crate::lexer::tokens::*;
+use std::fmt;
 
-mod ast {
-    pub enum Expression {
-        literal(Literal),
-        unary(Unary),
-        binary(Binary),
-        grouping(Grouping)
-    }
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+pub enum Expression {
+    Literal(Literal),
+    Unary(Unary),
+    Binary(Binary),
+    Grouping(Grouping)
+}
 
-    pub enum Literal {
-        Number(Literal::Integer),
-        String(Literal::String),
-        Boolean(Literal::Boolean),
-        Nil(Token::NIL)
-    }
+impl fmt::Debug for Expression {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
 
-    pub struct Grouping {
-        expr: Expression,
-    }
-
-    pub struct Unary {
-        op: Token::Unary,
-        expr: Expression,
-    }
-
-    pub struct Binary {
-        op: Token::Binary,
-        lhs: Expression,
-        rhs: Expression,
     }
 }
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+pub enum Literal {
+    Number(Literal::INTEGER),
+    String(Literal::STRING),
+    Boolean(Literal::BOOLEAN),
+    Nil(Token::NIL),
+}
+
+#[derive(Debug, Clone, Hash)]
+pub struct Grouping {
+    expr: Expression,
+}
+
+#[derive(Debug, Clone, Hash)]
+pub struct Unary {
+    op: Token::Unary,
+    expr: Expression,
+}
+
+#[derive(Debug, Clone, Hash)]
+pub struct Binary {
+    op: Token::Binary,
+    lhs: Expression,
+    rhs: Expression,
+}
+

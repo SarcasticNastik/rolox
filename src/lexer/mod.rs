@@ -1,5 +1,5 @@
 pub mod tokens;
-mod ast;
+// pub mod ast;
 
 use crate::util;
 use crate::Result;
@@ -10,11 +10,11 @@ use ::phf::Map;
 
 #[macro_use]
 macro_rules! trace {
-    ($msg:literal) => {
-        eprintln!("lexer: {}", $msg);
+    ($util:literal,$msg:literal) => {
+        eprintln!("{}: {}",$util, $msg);
     };
-    ($msg:literal,$val:expr) => {
-        eprintln!("lexer: {}", format!($msg, $val));
+    ($util:literal,$msg:literal,$val:expr) => {
+        eprintln!("{}: {}", $util, format!($msg, $val));
     };
 }
 
@@ -22,7 +22,6 @@ macro_rules! trace {
 pub struct Lexer {
     raw_data: Peekable<IntoIter<char>>,
     line: u32, // somehow keep track of line number
-    position: u32,
 }
 
 impl Lexer {
@@ -30,7 +29,6 @@ impl Lexer {
         Lexer {
             raw_data: text.chars().collect::<Vec<_>>().into_iter().peekable(),
             line: 0,
-            position: 0,
         }
     }
 
@@ -46,7 +44,7 @@ impl Lexer {
                 },
                 _ => {
                     // self.raw_data.peek();
-                    trace!("Stopping get_next_char_while after peeking {:?}", self.raw_data.peek());
+                    trace!("lexer", "Stopping get_next_char_while after peeking {:?}", self.raw_data.peek());
                     break;
                 }
             }
@@ -76,11 +74,12 @@ impl Iterator for Lexer {
             }
         }
 
-        trace!("First character to lexer: {:?}", first_char);
+        trace!("lexer", "First character to lexer: {:?}", first_char);
 
+        // TODO: Pattern Match comments first!
         // IDENTIFIER
         if Self::is_identifier(first_char) && !first_char.is_numeric() {
-            trace!("Idenifier");
+            trace!("lexer","Identifier");
             let mut name = first_char.to_string();
             self.take_while(&mut name, Self::is_identifier);
 
@@ -107,7 +106,7 @@ impl Iterator for Lexer {
         }
         // NUMBER - Maybe have decimal point?
         else if first_char.is_numeric() {
-            trace!("Numeric");
+            trace!("lexer", "Numeric");
             let mut value = first_char.to_string();
             self.take_while(&mut value, |c| c.is_numeric());
             token = match value.parse() {
@@ -117,7 +116,7 @@ impl Iterator for Lexer {
         }
         // String literal
         else if first_char == '"' {
-            trace!("String literal");
+            trace!("lexer", "String literal");
             let mut value = String::new();
             self.take_while(&mut value, |c| c != '"');
             self.raw_data.next(); // eat the ending "
@@ -126,11 +125,12 @@ impl Iterator for Lexer {
         }
         // Symbol
         else {
-            trace!("Symbol");
+            trace!("lexer", "Symbol");
             let mut raw = first_char.to_string();
             loop {
                 if let Some(val) = self.raw_data.peek() {
                     raw.push(*val);
+                    trace!("lexer: raw:","{}", raw);
                 }
                 else {
                     break;
@@ -145,9 +145,10 @@ impl Iterator for Lexer {
                     break;
                 }
             }
+            trace!("lexer: raw:","{}", raw);
             token = match &raw[..] {
-                s if s == "//" => {
-                    trace!("Ignoring comments!");
+                s if s.len() > 1 && &s[0..2] == "//" => {
+                    trace!("lexer", "Ignoring comments!");
                     self.take_while(&mut String::new(), |c| c != '\n');
                     self.line += 1;
                     self.next()?
