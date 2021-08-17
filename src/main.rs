@@ -28,7 +28,7 @@ fn compile(lines: &String) {
     println!("{}", lines);
     // Lexer
     let lexer = Lexer::new(lines);
-    for token in lexer {
+    for token in lexer.cloned() {
         match token {
             Ok(t) => println!("{:?}", t),
             Err(e) => {

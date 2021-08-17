@@ -1,4 +1,5 @@
 pub mod tokens;
+mod ast;
 
 use crate::util;
 use crate::Result;
@@ -17,16 +18,19 @@ macro_rules! trace {
     };
 }
 
+#[derive(Debug, Clone)]
 pub struct Lexer {
     raw_data: Peekable<IntoIter<char>>,
-    line: u32 // somehow keep track of line number
+    line: u32, // somehow keep track of line number
+    position: u32,
 }
 
 impl Lexer {
     pub fn new(text: &String) -> Self {
         Lexer {
             raw_data: text.chars().collect::<Vec<_>>().into_iter().peekable(),
-            line: 0
+            line: 0,
+            position: 0,
         }
     }
 
