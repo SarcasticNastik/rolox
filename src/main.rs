@@ -1,5 +1,6 @@
 mod lexer;
 mod util;
+mod parser;
 
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
@@ -28,17 +29,18 @@ fn compile(lines: &String) {
     println!("{}", lines);
     // Lexer
     let lexer = Lexer::new(lines);
-    for token in lexer.into_iter() {
-        match token {
-            Ok(t) => println!("{:?}", t),
-            Err(e) => {
-                unsafe { HAS_ERROR = true; }
-                debug!("lexer: {}", e);
-            }
-        }
-    }
-    // Parser
-    // AST
+
+    // for token in lexer.into_iter() {
+    //     match token {
+    //         Ok(t) => println!("{:?}", t),
+    //         Err(e) => {
+    //             unsafe { HAS_ERROR = true; }
+    //             debug!("lexer: {}", e);
+    //         }
+    //     }
+    // }
+
+    //  Lexer -> Parser -> AST (would have to store some sort of global state)
 }
 
 // Read-Eval-Print-Loop
