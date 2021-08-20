@@ -7,15 +7,18 @@
 // binary         → expression operator expression ;
 // operator       → "==" | "!=" | "<" | "<=" | ">" | ">=" | "+"  | "-"  | "*" | "/" ;
 
-use crate::lexer::{Token, Literal as OtherLiteral};
+use crate::lexer::tokens;
+use crate::lexer::tokens::{Literal as OtherLiteral, Token};
+use crate::parser::Parser;
+use crate::{peek_ident, peek_literal, peek_symbol};
 use std::fmt;
 
-#[derive(Debug, Clone,  PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Expression {
     Literal(Box<Literal>),
     Unary(Box<Unary>),
     Binary(Box<Binary>),
-    Grouping(Box<Grouping>)
+    Grouping(Box<Grouping>),
 }
 
 impl fmt::Display for Expression {
@@ -24,7 +27,7 @@ impl fmt::Display for Expression {
     }
 }
 
-#[derive(Debug, Clone,  PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Literal {
     Number(u32),
     String(String),
@@ -38,7 +41,7 @@ impl fmt::Display for Literal {
     }
 }
 
-#[derive(Debug, Clone,  PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Grouping {
     expr: Box<Expression>,
 }
@@ -49,7 +52,7 @@ impl fmt::Display for Grouping {
     }
 }
 
-#[derive(Debug, Clone,  PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Unary {
     op: Token,
     expr: Box<Expression>,
@@ -61,7 +64,7 @@ impl fmt::Display for Unary {
     }
 }
 
-#[derive(Debug, Clone,  PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Binary {
     op: Token,
     lhs: Box<Expression>,

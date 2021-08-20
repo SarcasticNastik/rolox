@@ -1,5 +1,5 @@
+use ::phf::{phf_map, Map};
 use std::collections::HashMap;
-use ::phf::{Map, phf_map};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Token {
@@ -71,7 +71,7 @@ pub fn binary_op_precedence(op: &str) -> i32 {
         "==" | "!=" | "<" | ">" | "<=" | ">=" => 10,
         "+" | "-" => 20,
         "*" | "/" => 30,
-        _ => -1
+        _ => -1,
     }
 }
 

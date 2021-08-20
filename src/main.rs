@@ -1,13 +1,13 @@
 mod lexer;
-mod util;
 mod parser;
+mod util;
 
+use crate::lexer::Lexer;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 use std::error::Error;
 use structopt::StructOpt;
 use util::check_pattern;
-use crate::lexer::Lexer;
 
 // Returns tokens as the following type
 pub type Result<T> = std::result::Result<T, String>;
@@ -80,7 +80,7 @@ fn repl() {
 fn run(name: &str, content: &String) {
     debug!("Compiling file {}", name);
     compile(content);
-    unsafe{
+    unsafe {
         if HAS_ERROR {
             debug!("Error while parsing/ compiling file");
             std::process::exit(65);

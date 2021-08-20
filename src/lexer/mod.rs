@@ -1,18 +1,16 @@
 pub mod tokens;
-mod ast;
-// pub mod ast;
 
+use crate::lexer::tokens::*;
 use crate::util;
 use crate::Result;
-use crate::lexer::tokens::*;
+use ::phf::Map;
 use std::iter::Peekable;
 use std::vec::IntoIter;
-use ::phf::Map;
 
 #[macro_use]
 macro_rules! trace {
     ($util:literal,$msg:literal) => {
-        eprintln!("{}: {}",$util, $msg);
+        eprintln!("{}: {}", $util, $msg);
     };
     ($util:literal,$msg:literal,$val:expr) => {
         eprintln!("{}: {}", $util, format!($msg, $val));
@@ -33,19 +31,20 @@ impl Lexer {
         }
     }
 
-    fn take_while(&mut self,
-                  raw_token: &mut String,
-                  cond: fn(char) -> bool
-    ) {
+    fn take_while(&mut self, raw_token: &mut String, cond: fn(char) -> bool) {
         loop {
             match self.raw_data.peek() {
                 Some(c) if cond(*c) => {
                     raw_token.push(*c);
                     self.raw_data.next();
-                },
+                }
                 _ => {
                     // self.raw_data.peek();
-                    trace!("lexer", "Stopping get_next_char_while after peeking {:?}", self.raw_data.peek());
+                    trace!(
+                        "lexer",
+                        "Stopping get_next_char_while after peeking {:?}",
+                        self.raw_data.peek()
+                    );
                     break;
                 }
             }
@@ -70,7 +69,7 @@ impl Iterator for Lexer {
                 Some(c) => {
                     first_char = c;
                     break;
-                },
+                }
                 None => return None,
             }
         }
@@ -80,7 +79,7 @@ impl Iterator for Lexer {
         // TODO: Pattern Match comments first!
         // IDENTIFIER
         if Self::is_identifier(first_char) && !first_char.is_numeric() {
-            trace!("lexer","Identifier");
+            trace!("lexer", "Identifier");
             let mut name = first_char.to_string();
             self.take_while(&mut name, Self::is_identifier);
 
@@ -102,7 +101,7 @@ impl Iterator for Lexer {
                 "true" => Ok(Token::TRUE),
                 "var" => Ok(Token::VAR),
                 "while" => Ok(Token::WHILE),
-                val => Ok(Token::IDENTIFIER(val.to_string()))
+                val => Ok(Token::IDENTIFIER(val.to_string())),
             }
         }
         // NUMBER - Maybe have decimal point?
@@ -122,7 +121,6 @@ impl Iterator for Lexer {
             self.take_while(&mut value, |c| c != '"');
             self.raw_data.next(); // eat the ending "
             token = Ok(Token::LITERAL(Literal::STRING(value)));
-
         }
         // Symbol
         else {
@@ -131,22 +129,20 @@ impl Iterator for Lexer {
             loop {
                 if let Some(val) = self.raw_data.peek() {
                     raw.push(*val);
-                    trace!("lexer: raw:","{}", raw);
-                }
-                else {
+                    trace!("lexer: raw:", "{}", raw);
+                } else {
                     break;
                 }
 
                 // Check if entry exists in the hashmap
                 if VALID_SYMBOLS.contains_key(raw.as_str()) {
                     self.raw_data.next();
-                }
-                else {
+                } else {
                     raw.pop();
                     break;
                 }
             }
-            trace!("lexer: raw:","{}", raw);
+            trace!("lexer: raw:", "{}", raw);
             token = match &raw[..] {
                 s if s.len() > 1 && &s[0..2] == "//" => {
                     trace!("lexer", "Ignoring comments!");
@@ -161,4 +157,3 @@ impl Iterator for Lexer {
         Some(token)
     }
 }
-
