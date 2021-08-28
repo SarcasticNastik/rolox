@@ -30,15 +30,17 @@ fn compile(lines: &String) {
     // Lexer
     let lexer = Lexer::new(lines);
 
-    // for token in lexer.into_iter() {
-    //     match token {
-    //         Ok(t) => println!("{:?}", t),
-    //         Err(e) => {
-    //             unsafe { HAS_ERROR = true; }
-    //             debug!("lexer: {}", e);
-    //         }
-    //     }
-    // }
+    for token in lexer.into_iter() {
+        match token {
+            Ok(t) => println!("{:?}", t),
+            Err(e) => {
+                unsafe {
+                    HAS_ERROR = true;
+                }
+                debug!("lexer: {}", e);
+            }
+        }
+    }
 
     //  Lexer -> Parser -> AST (would have to store some sort of global state)
 }

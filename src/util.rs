@@ -1,4 +1,4 @@
-﻿#[macro_export]
+#[macro_export]
 macro_rules! debug {
     ($msg:literal) => {
         eprintln!("rolox: {:?}", $msg);
@@ -7,9 +7,9 @@ macro_rules! debug {
         eprintln!("rolox: {:?}", format!($msg, $val));
     };
     ($line:literal;$msg:literal) => {
-        eprintln!("[line:{:?} {:?}]"$line, $msg);
+        eprintln!("[line:{:?} {:?}]", $line, $msg);
         panic!("");
-    }
+    };
 }
 
 // checks for file extensions
